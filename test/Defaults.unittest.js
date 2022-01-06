@@ -91,12 +91,14 @@ describe("Defaults", () => {
 		    },
 		  },
 		  "experiments": Object {
-		    "asset": false,
 		    "asyncWebAssembly": false,
-		    "buildHttp": false,
-		    "executeModule": false,
+		    "backCompat": true,
+		    "buildHttp": undefined,
+		    "cacheUnaffected": false,
+		    "css": false,
+		    "futureDefaults": false,
 		    "layers": false,
-		    "lazyCompilation": false,
+		    "lazyCompilation": undefined,
 		    "outputModule": false,
 		    "syncWebAssembly": false,
 		    "topLevelAwait": false,
@@ -216,7 +218,7 @@ describe("Defaults", () => {
 		        "exprContextRecursive": true,
 		        "exprContextRegExp": false,
 		        "exprContextRequest": ".",
-		        "strictExportPresence": false,
+		        "strictExportPresence": undefined,
 		        "strictThisContextOnImports": false,
 		        "unknownContextCritical": true,
 		        "unknownContextRecursive": true,
@@ -295,6 +297,7 @@ describe("Defaults", () => {
 		  },
 		  "output": Object {
 		    "assetModuleFilename": "[hash][ext][query]",
+		    "asyncChunks": true,
 		    "charset": true,
 		    "chunkFilename": "[name].js",
 		    "chunkFormat": "array-push",
@@ -304,6 +307,8 @@ describe("Defaults", () => {
 		    "clean": undefined,
 		    "compareBeforeEmit": true,
 		    "crossOriginLoading": false,
+		    "cssChunkFilename": "[name].css",
+		    "cssFilename": "[name].css",
 		    "devtoolFallbackModuleFilenameTemplate": undefined,
 		    "devtoolModuleFilenameTemplate": undefined,
 		    "devtoolNamespace": "webpack",
@@ -597,7 +602,7 @@ describe("Defaults", () => {
 		    },
 		    "immutablePaths": Array [],
 		    "managedPaths": Array [
-		      "<cwd>/node_modules",
+		      "<cwd>/node_modules/",
 		    ],
 		    "module": Object {
 		      "timestamp": true,
@@ -784,6 +789,7 @@ describe("Defaults", () => {
 		@@ ... @@
 		-   "cache": false,
 		+   "cache": Object {
+		+     "cacheUnaffected": false,
 		+     "maxGenerations": Infinity,
 		+     "type": "memory",
 		+   },
@@ -984,6 +990,11 @@ describe("Defaults", () => {
 		-     "chunkFilename": "[name].js",
 		+     "chunkFilename": "[id].bundle.js",
 		@@ ... @@
+		-     "cssChunkFilename": "[name].css",
+		-     "cssFilename": "[name].css",
+		+     "cssChunkFilename": "[id].bundle.css",
+		+     "cssFilename": "bundle.css",
+		@@ ... @@
 		-     "filename": "[name].js",
 		+     "filename": "bundle.js",
 	`)
@@ -996,6 +1007,11 @@ describe("Defaults", () => {
 		@@ ... @@
 		-     "chunkFilename": "[name].js",
 		+     "chunkFilename": "[id].js",
+		@@ ... @@
+		-     "cssChunkFilename": "[name].css",
+		-     "cssFilename": "[name].css",
+		+     "cssChunkFilename": "[id].css",
+		+     "cssFilename": "[id].css",
 		@@ ... @@
 		-     "filename": "[name].js",
 		+     "filename": [Function filename],
@@ -1486,6 +1502,7 @@ describe("Defaults", () => {
 		@@ ... @@
 		-   "cache": false,
 		+   "cache": Object {
+		+     "cacheUnaffected": false,
 		+     "maxGenerations": Infinity,
 		+     "type": "memory",
 		+   },
@@ -1502,43 +1519,44 @@ describe("Defaults", () => {
 	);
 	test("cache filesystem", { cache: { type: "filesystem" } }, e =>
 		e.toMatchInlineSnapshot(`
-- Expected
-+ Received
+		- Expected
+		+ Received
 
-@@ ... @@
--   "cache": false,
-+   "cache": Object {
-+     "allowCollectingMemory": false,
-+     "buildDependencies": Object {
-+       "defaultWebpack": Array [
-+         "<cwd>/lib/",
-+       ],
-+     },
-+     "cacheDirectory": "<cwd>/node_modules/.cache/webpack",
-+     "cacheLocation": "<cwd>/node_modules/.cache/webpack/default-none",
-+     "compression": false,
-+     "hashAlgorithm": "md4",
-+     "idleTimeout": 60000,
-+     "idleTimeoutAfterLargeChanges": 1000,
-+     "idleTimeoutForInitialStore": 5000,
-+     "maxAge": 5184000000,
-+     "maxMemoryGenerations": Infinity,
-+     "name": "default-none",
-+     "profile": false,
-+     "store": "pack",
-+     "type": "filesystem",
-+     "version": "",
-+   },
-@@ ... @@
--     "unsafeCache": false,
-+     "unsafeCache": [Function anonymous],
-@@ ... @@
--     "cache": false,
-+     "cache": true,
-@@ ... @@
--     "cache": false,
-+     "cache": true,
-`)
+		@@ ... @@
+		-   "cache": false,
+		+   "cache": Object {
+		+     "allowCollectingMemory": false,
+		+     "buildDependencies": Object {
+		+       "defaultWebpack": Array [
+		+         "<cwd>/lib/",
+		+       ],
+		+     },
+		+     "cacheDirectory": "<cwd>/node_modules/.cache/webpack",
+		+     "cacheLocation": "<cwd>/node_modules/.cache/webpack/default-none",
+		+     "compression": false,
+		+     "hashAlgorithm": "md4",
+		+     "idleTimeout": 60000,
+		+     "idleTimeoutAfterLargeChanges": 1000,
+		+     "idleTimeoutForInitialStore": 5000,
+		+     "maxAge": 5184000000,
+		+     "maxMemoryGenerations": Infinity,
+		+     "memoryCacheUnaffected": false,
+		+     "name": "default-none",
+		+     "profile": false,
+		+     "store": "pack",
+		+     "type": "filesystem",
+		+     "version": "",
+		+   },
+		@@ ... @@
+		-     "unsafeCache": false,
+		+     "unsafeCache": [Function anonymous],
+		@@ ... @@
+		-     "cache": false,
+		+     "cache": true,
+		@@ ... @@
+		-     "cache": false,
+		+     "cache": true,
+	`)
 	);
 	test(
 		"cache filesystem development",
@@ -1566,6 +1584,7 @@ describe("Defaults", () => {
 			+     "idleTimeoutForInitialStore": 5000,
 			+     "maxAge": 5184000000,
 			+     "maxMemoryGenerations": 5,
+			+     "memoryCacheUnaffected": false,
 			+     "name": "default-development",
 			+     "profile": false,
 			+     "store": "pack",
@@ -1792,63 +1811,64 @@ describe("Defaults", () => {
 		},
 		e =>
 			e.toMatchInlineSnapshot(`
-- Expected
-+ Received
+			- Expected
+			+ Received
 
-@@ ... @@
--   "cache": false,
--   "context": "<cwd>",
-+   "cache": Object {
-+     "allowCollectingMemory": false,
-+     "buildDependencies": Object {
-+       "defaultWebpack": Array [
-+         "<cwd>/lib/",
-+       ],
-+     },
-+     "cacheDirectory": "<cwd>/node_modules/.cache/webpack",
-+     "cacheLocation": "<cwd>/node_modules/.cache/webpack/default-none",
-+     "compression": false,
-+     "hashAlgorithm": "md4",
-+     "idleTimeout": 60000,
-+     "idleTimeoutAfterLargeChanges": 1000,
-+     "idleTimeoutForInitialStore": 5000,
-+     "maxAge": 5184000000,
-+     "maxMemoryGenerations": Infinity,
-+     "name": "default-none",
-+     "profile": false,
-+     "store": "pack",
-+     "type": "filesystem",
-+     "version": "",
-+   },
-+   "context": "<cwd>/test/fixtures",
-@@ ... @@
--     "unsafeCache": false,
-+     "unsafeCache": [Function anonymous],
-@@ ... @@
--     "chunkLoadingGlobal": "webpackChunkwebpack",
-+     "chunkLoadingGlobal": "webpackChunk",
-@@ ... @@
--     "devtoolNamespace": "webpack",
-+     "devtoolNamespace": "",
-@@ ... @@
--     "hotUpdateGlobal": "webpackHotUpdatewebpack",
-+     "hotUpdateGlobal": "webpackHotUpdate",
-@@ ... @@
--     "path": "<cwd>/dist",
-+     "path": "<cwd>/test/fixtures/dist",
-@@ ... @@
--     "uniqueName": "webpack",
-+     "uniqueName": "",
-@@ ... @@
--     "cache": false,
-+     "cache": true,
-@@ ... @@
--       "<cwd>",
-+       "<cwd>/test/fixtures",
-@@ ... @@
--     "cache": false,
-+     "cache": true,
-`),
+			@@ ... @@
+			-   "cache": false,
+			-   "context": "<cwd>",
+			+   "cache": Object {
+			+     "allowCollectingMemory": false,
+			+     "buildDependencies": Object {
+			+       "defaultWebpack": Array [
+			+         "<cwd>/lib/",
+			+       ],
+			+     },
+			+     "cacheDirectory": "<cwd>/node_modules/.cache/webpack",
+			+     "cacheLocation": "<cwd>/node_modules/.cache/webpack/default-none",
+			+     "compression": false,
+			+     "hashAlgorithm": "md4",
+			+     "idleTimeout": 60000,
+			+     "idleTimeoutAfterLargeChanges": 1000,
+			+     "idleTimeoutForInitialStore": 5000,
+			+     "maxAge": 5184000000,
+			+     "maxMemoryGenerations": Infinity,
+			+     "memoryCacheUnaffected": false,
+			+     "name": "default-none",
+			+     "profile": false,
+			+     "store": "pack",
+			+     "type": "filesystem",
+			+     "version": "",
+			+   },
+			+   "context": "<cwd>/test/fixtures",
+			@@ ... @@
+			-     "unsafeCache": false,
+			+     "unsafeCache": [Function anonymous],
+			@@ ... @@
+			-     "chunkLoadingGlobal": "webpackChunkwebpack",
+			+     "chunkLoadingGlobal": "webpackChunk",
+			@@ ... @@
+			-     "devtoolNamespace": "webpack",
+			+     "devtoolNamespace": "",
+			@@ ... @@
+			-     "hotUpdateGlobal": "webpackHotUpdatewebpack",
+			+     "hotUpdateGlobal": "webpackHotUpdate",
+			@@ ... @@
+			-     "path": "<cwd>/dist",
+			+     "path": "<cwd>/test/fixtures/dist",
+			@@ ... @@
+			-     "uniqueName": "webpack",
+			+     "uniqueName": "",
+			@@ ... @@
+			-     "cache": false,
+			+     "cache": true,
+			@@ ... @@
+			-       "<cwd>",
+			+       "<cwd>/test/fixtures",
+			@@ ... @@
+			-     "cache": false,
+			+     "cache": true,
+		`),
 		() => {
 			process.chdir(path.resolve(__dirname, "fixtures"));
 		},
@@ -1874,6 +1894,119 @@ describe("Defaults", () => {
 			+       "require",
 			@@ ... @@
 			+       "async-node",
+		`)
+	);
+
+	test(
+		"experiments.futureDefaults",
+		{
+			experiments: {
+				futureDefaults: true
+			}
+		},
+		e =>
+			e.toMatchInlineSnapshot(`
+			- Expected
+			+ Received
+
+			@@ ... @@
+			-     "asyncWebAssembly": false,
+			-     "backCompat": true,
+			+     "asyncWebAssembly": true,
+			+     "backCompat": false,
+			@@ ... @@
+			-     "cacheUnaffected": false,
+			-     "css": false,
+			-     "futureDefaults": false,
+			+     "cacheUnaffected": true,
+			+     "css": true,
+			+     "futureDefaults": true,
+			@@ ... @@
+			-     "topLevelAwait": false,
+			+     "topLevelAwait": true,
+			@@ ... @@
+			+       },
+			+       Object {
+			+         "rules": Array [
+			+           Object {
+			+             "descriptionData": Object {
+			+               "type": "module",
+			+             },
+			+             "resolve": Object {
+			+               "fullySpecified": true,
+			+             },
+			+           },
+			+         ],
+			+         "test": /\\.wasm$/i,
+			+         "type": "webassembly/async",
+			+       },
+			+       Object {
+			+         "mimetype": "application/wasm",
+			+         "rules": Array [
+			+           Object {
+			+             "descriptionData": Object {
+			+               "type": "module",
+			+             },
+			+             "resolve": Object {
+			+               "fullySpecified": true,
+			+             },
+			+           },
+			+         ],
+			+         "type": "webassembly/async",
+			+       },
+			+       Object {
+			+         "oneOf": Array [
+			+           Object {
+			+             "resolve": Object {
+			+               "fullySpecified": true,
+			+             },
+			+             "test": /\\.module\\.css$/i,
+			+             "type": "css/module",
+			+           },
+			+           Object {
+			+             "resolve": Object {
+			+               "fullySpecified": true,
+			+               "preferRelative": true,
+			+             },
+			+             "type": "css",
+			+           },
+			+         ],
+			+         "test": /\\.css$/i,
+			+       },
+			+       Object {
+			+         "mimetype": "text/css+module",
+			+         "resolve": Object {
+			+           "fullySpecified": true,
+			+         },
+			+         "type": "css/module",
+			@@ ... @@
+			+         "mimetype": "text/css",
+			+         "resolve": Object {
+			+           "fullySpecified": true,
+			+           "preferRelative": true,
+			+         },
+			+         "type": "css",
+			+       },
+			+       Object {
+			@@ ... @@
+			+         "exportsPresence": "error",
+			@@ ... @@
+			-     "__dirname": "mock",
+			-     "__filename": "mock",
+			-     "global": true,
+			+     "__dirname": "warn-mock",
+			+     "__filename": "warn-mock",
+			+     "global": "warn",
+			@@ ... @@
+			+         "css",
+			@@ ... @@
+			-     "hashDigestLength": 20,
+			-     "hashFunction": "md4",
+			+     "hashDigestLength": 16,
+			+     "hashFunction": "xxhash64",
+			@@ ... @@
+			-       "<cwd>/node_modules/",
+			+       /^(.+?[\\\\/]node_modules[\\\\/])/,
 		`)
 	);
 });
