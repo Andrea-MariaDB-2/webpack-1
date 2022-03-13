@@ -9,68 +9,68 @@ const stripAnsi = require("strip-ansi");
  * @param {string} str String to quote
  * @returns {string} Escaped string
  */
-const quotemeta = str => {
+const quoteMeta = str => {
 	return str.replace(/[-[\]\\/{}()*+?.^$|]/g, "\\$&");
 };
 
-describe("Defaults", () => {
-	const cwd = process.cwd();
-	const cwdRegExp = new RegExp(
-		`${quotemeta(cwd)}((?:\\\\)?(?:[a-zA-Z.\\-_]+\\\\)*)`,
-		"g"
-	);
-	const escapedCwd = JSON.stringify(cwd).slice(1, -1);
-	const escapedCwdRegExp = new RegExp(
-		`${quotemeta(escapedCwd)}((?:\\\\\\\\)?(?:[a-zA-Z.\\-_]+\\\\\\\\)*)`,
-		"g"
-	);
-	const normalize = str => {
-		if (cwd.startsWith("/")) {
-			str = str.replace(new RegExp(quotemeta(cwd), "g"), "<cwd>");
-		} else {
-			str = str.replace(cwdRegExp, (m, g) => `<cwd>${g.replace(/\\/g, "/")}`);
-			str = str.replace(
-				escapedCwdRegExp,
-				(m, g) => `<cwd>${g.replace(/\\\\/g, "/")}`
-			);
-		}
-		str = str.replace(/@@ -\d+,\d+ \+\d+,\d+ @@/g, "@@ ... @@");
-		return str;
-	};
-
-	class Diff {
-		constructor(value) {
-			this.value = value;
-		}
+const cwd = process.cwd();
+const cwdRegExp = new RegExp(
+	`${quoteMeta(cwd)}((?:\\\\)?(?:[a-zA-Z.\\-_]+\\\\)*)`,
+	"g"
+);
+const escapedCwd = JSON.stringify(cwd).slice(1, -1);
+const escapedCwdRegExp = new RegExp(
+	`${quoteMeta(escapedCwd)}((?:\\\\\\\\)?(?:[a-zA-Z.\\-_]+\\\\\\\\)*)`,
+	"g"
+);
+const normalize = str => {
+	if (cwd.startsWith("/")) {
+		str = str.replace(new RegExp(quoteMeta(cwd), "g"), "<cwd>");
+	} else {
+		str = str.replace(cwdRegExp, (m, g) => `<cwd>${g.replace(/\\/g, "/")}`);
+		str = str.replace(
+			escapedCwdRegExp,
+			(m, g) => `<cwd>${g.replace(/\\\\/g, "/")}`
+		);
 	}
+	str = str.replace(/@@ -\d+,\d+ \+\d+,\d+ @@/g, "@@ ... @@");
+	return str;
+};
 
-	expect.addSnapshotSerializer({
-		test(value) {
-			return value instanceof Diff;
-		},
-		print(received) {
-			return normalize(received.value);
-		}
-	});
+class Diff {
+	constructor(value) {
+		this.value = value;
+	}
+}
 
-	expect.addSnapshotSerializer({
-		test(value) {
-			return typeof value === "string";
-		},
-		print(received) {
-			return JSON.stringify(normalize(received));
-		}
-	});
+expect.addSnapshotSerializer({
+	test(value) {
+		return value instanceof Diff;
+	},
+	print(received) {
+		return normalize(received.value);
+	}
+});
 
-	const getDefaultConfig = config => {
-		const { applyWebpackOptionsDefaults, getNormalizedWebpackOptions } =
-			require("..").config;
-		config = getNormalizedWebpackOptions(config);
-		applyWebpackOptionsDefaults(config);
-		process.chdir(cwd);
-		return config;
-	};
+expect.addSnapshotSerializer({
+	test(value) {
+		return typeof value === "string";
+	},
+	print(received) {
+		return JSON.stringify(normalize(received));
+	}
+});
 
+const getDefaultConfig = config => {
+	const { applyWebpackOptionsDefaults, getNormalizedWebpackOptions } =
+		require("..").config;
+	config = getNormalizedWebpackOptions(config);
+	applyWebpackOptionsDefaults(config);
+	process.chdir(cwd);
+	return config;
+};
+
+describe("snapshots", () => {
 	const baseConfig = getDefaultConfig({ mode: "none" });
 
 	it("should have the correct base config", () => {
@@ -95,7 +95,7 @@ describe("Defaults", () => {
 		    "backCompat": true,
 		    "buildHttp": undefined,
 		    "cacheUnaffected": false,
-		    "css": false,
+		    "css": undefined,
 		    "futureDefaults": false,
 		    "layers": false,
 		    "lazyCompilation": undefined,
@@ -218,6 +218,7 @@ describe("Defaults", () => {
 		        "exprContextRecursive": true,
 		        "exprContextRegExp": false,
 		        "exprContextRequest": ".",
+		        "importMeta": true,
 		        "strictExportPresence": undefined,
 		        "strictThisContextOnImports": false,
 		        "unknownContextCritical": true,
@@ -881,6 +882,12 @@ describe("Defaults", () => {
 		-     "chunkFilename": "[name].js",
 		+     "chunkFilename": "[name].mjs",
 		@@ ... @@
+		-       "dynamicImport": undefined,
+		+       "dynamicImport": true,
+		@@ ... @@
+		-       "module": undefined,
+		+       "module": true,
+		@@ ... @@
 		-     "filename": "[name].js",
 		+     "filename": "[name].mjs",
 		@@ ... @@
@@ -1452,7 +1459,7 @@ describe("Defaults", () => {
 		+   "recordsOutputPath": "some-path",
 	`)
 	);
-	test("ecamVersion", { output: { ecmaVersion: 2020 } }, e =>
+	test("ecmaVersion", { output: { ecmaVersion: 2020 } }, e =>
 		e.toMatchInlineSnapshot(`Compared values have no visual difference.`)
 	);
 	test("single runtimeChunk", { optimization: { runtimeChunk: "single" } }, e =>
@@ -1916,10 +1923,12 @@ describe("Defaults", () => {
 			+     "backCompat": false,
 			@@ ... @@
 			-     "cacheUnaffected": false,
-			-     "css": false,
+			-     "css": undefined,
 			-     "futureDefaults": false,
 			+     "cacheUnaffected": true,
-			+     "css": true,
+			+     "css": Object {
+			+       "exportsOnly": false,
+			+     },
 			+     "futureDefaults": true,
 			@@ ... @@
 			-     "topLevelAwait": false,
@@ -1979,15 +1988,14 @@ describe("Defaults", () => {
 			+           "fullySpecified": true,
 			+         },
 			+         "type": "css/module",
-			@@ ... @@
+			+       },
+			+       Object {
 			+         "mimetype": "text/css",
 			+         "resolve": Object {
 			+           "fullySpecified": true,
 			+           "preferRelative": true,
 			+         },
 			+         "type": "css",
-			+       },
-			+       Object {
 			@@ ... @@
 			+         "exportsPresence": "error",
 			@@ ... @@
@@ -2009,4 +2017,28 @@ describe("Defaults", () => {
 			+       /^(.+?[\\\\/]node_modules[\\\\/])/,
 		`)
 	);
+});
+
+it("should result in the same target options for same target", () => {
+	const inlineTarget = getDefaultConfig({ target: "node12.17" });
+	const browserslistTarget = getDefaultConfig({
+		target: "browserslist: node 12.17"
+	});
+	const diff = stripAnsi(
+		jestDiff(inlineTarget, browserslistTarget, {
+			expand: false,
+			contextLines: 0
+		})
+	);
+
+	expect(inlineTarget.output.environment.module).toBe(true);
+	expect(inlineTarget.output.environment.dynamicImport).toBe(true);
+	expect(new Diff(diff)).toMatchInlineSnapshot(`
+		- Expected
+		+ Received
+
+		@@ ... @@
+		-   "target": "node12.17",
+		+   "target": "browserslist: node 12.17",
+	`);
 });
